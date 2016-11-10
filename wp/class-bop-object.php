@@ -40,9 +40,22 @@ abstract class Bop_Object{
   
   abstract public function update();
   
-  public function get_meta( $k = '', $single = false ){
+  //WP has a stupid way of getting meta
+  public function get_meta( $k = '', $single = true ){
     if( ! $this->id ) return false;
-    return get_metadata( $this->_meta_type, $this->id, $k, $single );
+    
+    //if no key then only false is okay
+    $single = $k && $single;
+    
+    $m = get_metadata( $this->_meta_type, $this->id, $k, $single );
+    
+    if( ! $k ){
+      foreach( $m as $key=>$value ){
+        $m[$key] = maybe_unserialize( $value[0] );
+      }
+    }
+    
+    return $m;
   }
   
   public function update_meta( $k, $v, $prev = '' ){
